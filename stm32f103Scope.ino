@@ -1,3 +1,11 @@
+/*
+based on https://github.com/stm32duino
+board: https://github.com/stm32duino/BoardManagerFiles/raw/main/package_stmicroelectronics_index.json
+
+
+*/
+
+
 #include <Adafruit_GFX.h>    // Core graphics library
 #include <Adafruit_ST7735.h> // Hardware-specific library for ST7735
 #include <SPI.h>
