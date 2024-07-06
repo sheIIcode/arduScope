@@ -1,0 +1,297 @@
+notes 
+
+!!!!!!!!!!!!
+board clk and periph setup here:
+C:\Users\aro\AppData\Local\Arduino15\packages\stm32duino\hardware\STM32F1\2022.9.26\variants\generic_stm32f103r8\wirish\board.cpp
+
+hardware\stm32\2.7.1\system\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f100xb.h:#define RCC_APB1ENR_TIM2EN                   RCC_APB1ENR_TIM2EN_Msk            /*!< Timer 2 clock enabled*/
+
+
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h:                                        SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);\
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h:                                        tmpreg = READ_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM2EN);\
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h:#define __HAL_RCC_TIM2_CLK_DISABLE()      (RCC->APB1ENR &= ~(RCC_APB1ENR_TIM2EN))
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h:#define __HAL_RCC_TIM2_IS_CLK_ENABLED()       ((RCC->APB1ENR & (RCC_APB1ENR_TIM2EN)) != RESET)
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_hal_rcc.h:#define __HAL_RCC_TIM2_IS_CLK_DISABLED()      ((RCC->APB1ENR & (RCC_APB1ENR_TIM2EN)) == RESET)
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_bus.h:#define LL_APB1_GRP1_PERIPH_TIM2           RCC_APB1ENR_TIM2EN
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_bus.h:  *         APB1ENR      TIM2EN        LL_APB1_GRP1_EnableClock\n
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_bus.h:  *         APB1ENR      TIM2EN        LL_APB1_GRP1_IsEnabledClock\n
+hardware\stm32\2.7.1\system\Drivers\STM32F1xx_HAL_Driver\Inc\stm32f1xx_ll_bus.h:  *         APB1ENR      TIM2EN        LL_APB1_GRP1_DisableClock\n
+
+
+stm32 duino 
+
+include\series\rcc.h:#define RCC_BASE                        ((struct rcc_reg_map*)0x40021000)
+
+
+hardware\stm32\2.7.1\system\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f103xb.h:#define RCC                 ((RCC_TypeDef *)RCC_BASE)
+
+
+typedef struct timer_dev {
+    timer_reg_map regs;         /**< Register map */
+    rcc_clk_id clk_id;          /**< RCC clock information */
+    timer_type type;            /**< Timer's type */
+    voidFuncPtr handlers[];     /**<
+                                 * Don't touch these. Use these instead:
+                                 * @see timer_attach_interrupt()
+                                 * @see timer_detach_interrupt() */
+} timer_dev;
+
+
+typedef union timer_reg_map {
+    timer_adv_reg_map *adv;     /**< Advanced register map */
+    timer_gen_reg_map *gen;     /**< General purpose register map */
+    timer_bas_reg_map *bas;     /**< Basic register map */
+} timer_reg_map;
+
+
+typedef struct timer_gen_reg_map {
+    __IO uint32 CR1;            /**< Control register 1 */
+    __IO uint32 CR2;            /**< Control register 2 */
+    __IO uint32 SMCR;           /**< Slave mode control register */
+    __IO uint32 DIER;           /**< DMA/Interrupt enable register */
+    __IO uint32 SR;             /**< Status register */
+    __IO uint32 EGR;            /**< Event generation register  */
+    __IO uint32 CCMR1;          /**< Capture/compare mode register 1 */
+    __IO uint32 CCMR2;          /**< Capture/compare mode register 2 */
+    __IO uint32 CCER;           /**< Capture/compare enable register */
+    __IO uint32 CNT;            /**< Counter */
+    __IO uint32 PSC;            /**< Prescaler */
+    __IO uint32 ARR;            /**< Auto-reload register */
+    const uint32 RESERVED1;     /**< Reserved */
+    __IO uint32 CCR1;           /**< Capture/compare register 1 */
+    __IO uint32 CCR2;           /**< Capture/compare register 2 */
+    __IO uint32 CCR3;           /**< Capture/compare register 3 */
+    __IO uint32 CCR4;           /**< Capture/compare register 4 */
+    const uint32 RESERVED2;     /**< Reserved */
+    __IO uint32 DCR;            /**< DMA control register */
+    __IO uint32 DMAR;           /**< DMA address for full transfer */
+} timer_gen_reg_map;
+
+
+/** NVIC register map type. */
+typedef struct nvic_reg_map {
+    __IO uint32 ISER[8];      /**< Interrupt Set Enable Registers */
+    /** Reserved */
+    uint32 RESERVED0[24];
+
+    __IO uint32 ICER[8];      /**< Interrupt Clear Enable Registers */
+    /** Reserved */
+    uint32 RESERVED1[24];
+
+    __IO uint32 ISPR[8];      /**< Interrupt Set Pending Registers */
+    /** Reserved */
+    uint32 RESERVED2[24];
+
+    __IO uint32 ICPR[8];      /**< Interrupt Clear Pending Registers */
+    /** Reserved */
+    uint32 RESERVED3[24];
+
+    __IO uint32 IABR[8];      /**< Interrupt Active bit Registers */
+    /** Reserved */
+    uint32 RESERVED4[56];
+
+    __IO uint8  IP[240];      /**< Interrupt Priority Registers */
+    /** Reserved */
+    uint32 RESERVED5[644];
+
+    __IO uint32 STIR;         /**< Software Trigger Interrupt Registers */
+} nvic_reg_map;
+
+/** NVIC register map base pointer. */
+#define NVIC_BASE                       ((struct nvic_reg_map*)0xE000E100)
+
+
+
+__weak void __irq_tim2(void) {
+    dispatch_general(TIMER2);
+}
+
+
+
+#define GPIO_CRH_MODE13                      GPIO_CRH_MODE13_Msk               /*!< MODE13[1:0] bits (Port x mode bits, pin 13) */
+#define GPIO_CRH_MODE13_0                    (0x1UL << GPIO_CRH_MODE13_Pos)     /*!< 0x00100000 */
+#define GPIO_CRH_MODE13_1                    (0x2UL << GPIO_CRH_MODE13_Pos)     /*!< 0x00200000 */
+#define GPIO_CRH_MODE13_Pos                  (20U)
+#define GPIO_CRH_MODE13_Msk
+
+
+hardware\stm32\2.7.1\system\Drivers\CMSIS\Device\ST\STM32F1xx\Include\stm32f102xb.h:#define GPIO_CRH_CNF13                       GPIO_CRH_CNF13_Msk                /*!< CNF13[1:0] bits (Port x configuration bits, pin 13) */
+#define GPIO_CRH_CNF13_0                     (0x1UL << GPIO_CRH_CNF13_Pos)      /*!< 0x00400000 */
+#define GPIO_CRH_CNF13_1                     (0x2UL << GPIO_CRH_CNF13_Pos)      /*!< 0x00800000 */
+#define GPIO_CRH_CNF13_Pos
+
+
+
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_DACEN               (1U << RCC_APB1ENR_DACEN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_PWREN               (1U << RCC_APB1ENR_PWREN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_BKPEN               (1U << RCC_APB1ENR_BKPEN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_CANEN               (1U << RCC_APB1ENR_CANEN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_USBEN               (1U << RCC_APB1ENR_USBEN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_I2C2EN              (1U << RCC_APB1ENR_I2C2EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_I2C1EN              (1U << RCC_APB1ENR_I2C1EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_UART5EN             (1U << RCC_APB1ENR_UART5EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_UART4EN             (1U << RCC_APB1ENR_UART4EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_USART3EN            (1U << RCC_APB1ENR_USART3EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_USART2EN            (1U << RCC_APB1ENR_USART2EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_SPI3EN              (1U << RCC_APB1ENR_SPI3EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_SPI2EN              (1U << RCC_APB1ENR_SPI2EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_WWDEN               (1U << RCC_APB1ENR_WWDEN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM14EN             (1U << RCC_APB1ENR_TIM14EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM13EN             (1U << RCC_APB1ENR_TIM13EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM12EN             (1U << RCC_APB1ENR_TIM12EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM7EN              (1U << RCC_APB1ENR_TIM7EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM6EN              (1U << RCC_APB1ENR_TIM6EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM5EN              (1U << RCC_APB1ENR_TIM5EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM4EN              (1U << RCC_APB1ENR_TIM4EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM3EN              (1U << RCC_APB1ENR_TIM3EN_BIT)
+libmaple\stm32f1\include\series\rcc.h:#define RCC_APB1ENR_TIM2EN              (1U << RCC_APB1ENR_TIM2EN_BIT)
+
+
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_TIM11EN             (1U << RCC_APB2ENR_TIM11EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_TIM10EN             (1U << RCC_APB2ENR_TIM10EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_TIM9EN              (1U << RCC_APB2ENR_TIM9EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_SYSCFGEN            (1U << RCC_APB2ENR_SYSCFGEN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_SPI1EN              (1U << RCC_APB2ENR_SPI1EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_SDIOEN              (1U << RCC_APB2ENR_SDIOEN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_ADC3EN              (1U << RCC_APB2ENR_ADC3EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_ADC2EN              (1U << RCC_APB2ENR_ADC2EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_ADC1EN              (1U << RCC_APB2ENR_ADC1EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_USART6EN            (1U << RCC_APB2ENR_USART6EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_USART1EN            (1U << RCC_APB2ENR_USART1EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_TIM8EN              (1U << RCC_APB2ENR_TIM8EN_BIT)
+libmaple\stm32f2\include\series\rcc.h:#define RCC_APB2ENR_TIM1EN              (1U << RCC_APB2ENR_TIM1EN_BIT)
+
+
+
+
+
+typedef struct adc_reg_map {
+    __IO uint32 SR;             ///< Status register
+    __IO uint32 CR1;            ///< Control register 1
+    __IO uint32 CR2;            ///< Control register 2
+    __IO uint32 SMPR1;          ///< Sample time register 1
+    __IO uint32 SMPR2;          ///< Sample time register 2
+    __IO uint32 JOFR1;          ///< Injected channel data offset register 1
+    __IO uint32 JOFR2;          ///< Injected channel data offset register 2
+    __IO uint32 JOFR3;          ///< Injected channel data offset register 3
+    __IO uint32 JOFR4;          ///< Injected channel data offset register 4
+    __IO uint32 HTR;            ///< Watchdog high threshold register
+    __IO uint32 LTR;            ///< Watchdog low threshold register
+    __IO uint32 SQR1;           ///< Regular sequence register 1
+    __IO uint32 SQR2;           ///< Regular sequence register 2
+    __IO uint32 SQR3;           ///< Regular sequence register 3
+    __IO uint32 JSQR;           ///< Injected sequence register
+    __IO uint32 JDR1;           ///< Injected data register 1
+    __IO uint32 JDR2;           ///< Injected data register 2
+    __IO uint32 JDR3;           ///< Injected data register 3
+    __IO uint32 JDR4;           ///< Injected data register 4
+    __IO uint32 DR;             ///< Regular data register
+} adc_reg_map;
+
+
+typedef struct adc_dev {
+    adc_reg_map *regs;      /**< Register map */
+    rcc_clk_id clk_id;      /**< RCC clock information */
+    nvic_irq_num irq_num;   /* Added by bubulindo */
+    voidFuncPtr handlers[]; /* Added by bubulindo EOC, JEOC, AWD Interrupts*/
+} adc_dev;
+
+
+
+typedef struct dma_reg_map {
+    __IO uint32 ISR;            /**< Interrupt status register */
+    __IO uint32 IFCR;           /**< Interrupt flag clear register */
+    __IO uint32 CCR1;           /**< Channel 1 configuration register */
+    __IO uint32 CNDTR1;         /**< Channel 1 number of data register */
+    __IO uint32 CPAR1;          /**< Channel 1 peripheral address register */
+    __IO uint32 CMAR1;          /**< Channel 1 memory address register */
+    const uint32 RESERVED1;     /**< Reserved. */
+    __IO uint32 CCR2;           /**< Channel 2 configuration register */
+    __IO uint32 CNDTR2;         /**< Channel 2 number of data register */
+    __IO uint32 CPAR2;          /**< Channel 2 peripheral address register */
+    __IO uint32 CMAR2;          /**< Channel 2 memory address register */
+    const uint32 RESERVED2;     /**< Reserved. */
+    __IO uint32 CCR3;           /**< Channel 3 configuration register */
+    __IO uint32 CNDTR3;         /**< Channel 3 number of data register */
+    __IO uint32 CPAR3;          /**< Channel 3 peripheral address register */
+    __IO uint32 CMAR3;          /**< Channel 3 memory address register */
+    const uint32 RESERVED3;     /**< Reserved. */
+    __IO uint32 CCR4;           /**< Channel 4 configuration register */
+    __IO uint32 CNDTR4;         /**< Channel 4 number of data register */
+    __IO uint32 CPAR4;          /**< Channel 4 peripheral address register */
+    __IO uint32 CMAR4;          /**< Channel 4 memory address register */
+    const uint32 RESERVED4;     /**< Reserved. */
+    __IO uint32 CCR5;           /**< Channel 5 configuration register */
+    __IO uint32 CNDTR5;         /**< Channel 5 number of data register */
+    __IO uint32 CPAR5;          /**< Channel 5 peripheral address register */
+    __IO uint32 CMAR5;          /**< Channel 5 memory address register */
+    const uint32 RESERVED5;     /**< Reserved. */
+    __IO uint32 CCR6;           /**< Channel 6 configuration register */
+    __IO uint32 CNDTR6;         /**< Channel 6 number of data register */
+    __IO uint32 CPAR6;          /**< Channel 6 peripheral address register */
+    __IO uint32 CMAR6;          /**< Channel 6 memory address register */
+    const uint32 RESERVED6;     /**< Reserved. */
+    __IO uint32 CCR7;           /**< Channel 7 configuration register */
+    __IO uint32 CNDTR7;         /**< Channel 7 number of data register */
+    __IO uint32 CPAR7;          /**< Channel 7 peripheral address register */
+    __IO uint32 CMAR7;          /**< Channel 7 memory address register */
+    const uint32 RESERVED7;     /**< Reserved. */
+} dma_reg_map;
+
+
+#include <libmaple/stm32.h>
+#include <libmaple/libmaple_types.h>
+#include <libmaple/exti.h>
+
+
+C:\Users\aro\AppData\Local\Arduino15\packages\stm32duino\hardware\STM32F1\2022.9.26\system\libmaple\stm32f1\include\series/dma.h
+typedef struct dma_tube_reg_map {
+    __IO uint32 CCR;           /**< Channel configuration register */
+    __IO uint32 CNDTR;         /**< Channel number of data register */
+    __IO uint32 CPAR;          /**< Channel peripheral address register */
+    __IO uint32 CMAR;          /**< Channel memory address register */
+} dma_tube_reg_map;
+
+/** DMA1 channel 1 register map base pointer */
+#define DMA1CH1_BASE                ((struct dma_tube_reg_map*)0x40020008)
+/** DMA1 channel 2 register map base pointer */
+#define DMA1CH2_BASE                ((struct dma_tube_reg_map*)0x4002001C)
+/** DMA1 channel 3 register map base pointer */
+#define DMA1CH3_BASE                ((struct dma_tube_reg_map*)0x40020030)
+/** DMA1 channel 4 register map base pointer */
+#define DMA1CH4_BASE                ((struct dma_tube_reg_map*)0x40020044)
+/** DMA1 channel 5 register map base pointer */
+#define DMA1CH5_BASE                ((struct dma_tube_reg_map*)0x40020058)
+/** DMA1 channel 6 register map base pointer */
+#define DMA1CH6_BASE                ((struct dma_tube_reg_map*)0x4002006C)
+/** DMA1 channel 7 register map base pointer */
+#define DMA1CH7_BASE                ((struct dma_tube_reg_map*)0x40020080)
+
+
+
+C:.
++---cores
+|   \---maple
+|       +---avr
+|       +---libmaple
+|       |   +---stm32f1
+|       |   |   \---performance
+|       |   \---usb
+|       |       +---stm32f1
+|       |       \---usb_lib
+|       \---stm32f1
++---system
+|   +---libmaple
+|   |   +---include
+|   |   |   +---libmaple
+|   |   |   \---util
+|   |   +---stm32f1
+|   |   |   \---include
+|   |   |       \---series
+|   |   +---stm32f2
+|   |   |   \---include
+|   |   |       \---series
+|   |   \---usb
+|   |       +---stm32f1
+|   |       \---usb_lib
+|   \---support
